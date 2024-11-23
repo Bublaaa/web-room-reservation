@@ -10,14 +10,10 @@
 </head>
 
 <body>
-    <div id="app" class="flex flex-col">
-        <div class="flex flex-row h-auto w-full mt-20">
-            <div class="w-full mt-4 md:p-5">
-                <main class="">
-                    @yield('content')
-                </main>
-            </div>
-        </div>
+    <div id="app">
+        <main class="w-full h-screen">
+            @yield('content')
+        </main>
     </div>
 </body>
 
