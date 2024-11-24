@@ -30,8 +30,8 @@
                                 </svg>
                             </div>
                             <input type="search" id="search"
-                                class="block w-full px-4 py-2 ps-10 text-sm text-gray-900 border border-gray-300 rounded-full bg-gray-50 focus:ring-blue-500 focus:border-blue-500"
-                                placeholder="Search" required />
+                                class="block w-full px-4 py-3 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500"
+                                placeholder="Search Username" required />
                     </form>
                 </div>
             </div>
@@ -44,7 +44,11 @@
                                 Name
                             </th>
                             <th scope="col" class="px-6 py-3">
-                                Role
+                                <select id="roleFilter" class="rounded-full select-form">
+                                    <option value="">All Roles</option>
+                                    <option value="admin">Admin</option>
+                                    <option value="user">User</option>
+                                </select>
                             </th>
                             <th scope="col" class="px-6 py-3">
                                 Action
@@ -62,8 +66,8 @@
                                     <div class="font-normal text-gray-500">{{ $user->email }}</div>
                                 </div>
                             </th>
-                            <td class="px-6 py-4">
-                                {{ $user->role }}
+                            <td class="px-6 py-4 font-bold text-center">
+                                {{ ucwords($user->role) }}
                             </td>
                             <td class="px-6 py-4">
                                 <a href="#"
@@ -89,7 +93,7 @@
                 </table>
             </div>
         </div>
-        <!-- Account Setting -->
+        <!-- Account Setting Card-->
         <div class="w-full md:max-w-sm min-w-sm p-6 h-fit bg-white border border-gray-200 rounded-lg shadow">
             <svg class="w-8 h-8 text-gray-500 mb-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
                 fill="currentColor" viewBox="0 0 24 24">
@@ -101,22 +105,22 @@
                 </h5>
             </a>
             <p class="mb-3 font-normal text-gray-500">Change your account detail</p>
-            <form id="editForm" method="POST" action="{{ route('admin.update.account', $admin->id) }}">
+            <form id="editAccountForm" method="POST" action="{{ route('admin.update.account', $admin->id) }}">
                 @csrf
                 @method('PUT')
-                <input type=" hidden" name="userId" id="editUserId">
+                <input type="hidden" class="hidden" name="userId" id="editUserAccoundId">
 
                 <!-- Username Field -->
                 <div class="mb-4">
-                    <label for="editUsername" class="form-label">Username</label>
-                    <input type="text" id="editUsername" name="username" class="text-form"
+                    <label for="editAccountUsername" class="form-label">Username</label>
+                    <input type="text" id="editAccountUsername" name="username" class="text-form"
                         value="{{ $admin->username }}" required>
                 </div>
 
                 <!-- Email Field -->
                 <div class="mb-4">
                     <label for="editEmail" class="form-label">Email</label>
-                    <input type="email" id="editEmail" name="email" class="text-form" value="{{ $admin->email }}"
+                    <input type="email" id="editAccountEmail" name="email" class="text-form" value="{{ $admin->email }}"
                         required>
                 </div>
 
@@ -145,7 +149,6 @@
                 <!-- Action Buttons -->
                 <div class="flex gap-4">
                     <button type="submit" class="large-button primary-button">Save</button>
-                    <button type="button" id="closeEditModal" class="large-button secondary-button">Cancel</button>
                 </div>
             </form>
 
@@ -254,11 +257,43 @@ closeRegisterModalButton.addEventListener('click', function() {
     registerModal.classList.add('hidden');
 });
 
-window.addEventListener('click', function(e) {
-    if (e.target === modal) {
-        registerModal.classList.add('hidden');
-    }
+document.addEventListener('DOMContentLoaded', () => {
+    const searchInput = document.getElementById('search');
+    const tableRows = document.querySelectorAll('tbody tr');
+
+    searchInput.addEventListener('input', (event) => {
+        const query = event.target.value.toLowerCase();
+
+        tableRows.forEach((row) => {
+            const usernameCell = row.querySelector(
+                'th .text-base.font-semibold');
+            const username = usernameCell.textContent
+                .toLowerCase();
+
+            if (username.includes(query)) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    });
+
+    const roleFilter = document.getElementById('roleFilter');
+
+    roleFilter.addEventListener('change', (event) => {
+        const selectedRole = event.target.value;
+        tableRows.forEach((row) => {
+            const roleCell = row.querySelector('td:nth-child(2)');
+            const role = roleCell.textContent.trim().toLowerCase();
+            if (selectedRole == '' || role == selectedRole) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    });
 });
+
 
 
 const closeDeleteModalButton = document.getElementById('closeDeleteModal');
