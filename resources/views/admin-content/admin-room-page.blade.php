@@ -1,7 +1,7 @@
 @extends('admin-page')
 
 @section('admin-content')
-<div class="w-full border-2 border-gray-200 border-dashed rounded-lg mt-14">
+<div class="w-full mt-14">
     <div class="flex flex-wrap w-full">
         <div class="w-full flex md:flex-row flex-col gap-4 mb-4">
             <!-- Table Header -->

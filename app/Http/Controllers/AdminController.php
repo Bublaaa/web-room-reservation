@@ -33,7 +33,6 @@ class AdminController extends Controller
         ]);
     }
     public function showRoomDashboard(){
-        $admin = auth()->user();
         $rooms = Room::all();
         return view('admin-content/admin-room-page')->with([
             'rooms' => $rooms,
@@ -41,11 +40,14 @@ class AdminController extends Controller
         ]);
     }
     public function showReservationDashboard(){
-        $admin = auth()->user();
+        $users = User::all();
+        $rooms = Room::all();
         $reservations = Reservation::all();
         return view('admin-content/admin-reservation-page')->with([
-            'reservations' => $reservations,
             'admin' => $this->admin,
+            'users' => $users,
+            'rooms' => $rooms,
+            'reservations' => $reservations,
         ]);
     }
 
