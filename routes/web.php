@@ -6,6 +6,7 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\RoomController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ReservationController;
+use App\Http\Controllers\BookerController;
 
 // Guest routes
 Route::middleware('guest')->group(function () {
@@ -17,7 +18,7 @@ Route::middleware('guest')->group(function () {
 Route::middleware('auth')->group(function () {
     // Admin routes
     Route::prefix('admin')->middleware('role:admin')->as('admin.')->group(function () {
-        // Read Routes
+        // Navigation Routes
         Route::get('/dashboard', [AdminController::class, 'showAdminDashboard'])->name('dashboard');
         Route::get('/rooms', [AdminController::class, 'showRoomDashboard'])->name('room.dashboard');
         Route::get('/reservations', [AdminController::class, 'showReservationDashboard'])->name('reservation.dashboard');
@@ -30,19 +31,23 @@ Route::middleware('auth')->group(function () {
         // Update self account
         Route::put('/user/{id}', [WebAuthenticationController::class, 'updateAccount'])->name('update.account');
 
-        // CRUD route for user table
-        Route::post('/rooms/add', [AdminController::class, 'addRoom'])->name('rooms.add'); // Add room
-        Route::put('/rooms/update', [AdminController::class, 'updateRoom'])->name('rooms.update'); // Update room
-        Route::delete('/rooms/delete', [AdminController::class, 'deleteRoom'])->name('rooms.delete'); // Delete room
-        // Resource routes
-        Route::resource('room', RoomController::class);
-        Route::resource('reservation', ReservationController::class);
-        
+        // CRUD route for rooms table
+        Route::post('/rooms/add', [AdminController::class, 'addRoom'])->name('rooms.add');
+        Route::put('/rooms/update', [AdminController::class, 'updateRoom'])->name('rooms.update');
+        Route::delete('/rooms/delete', [AdminController::class, 'deleteRoom'])->name('rooms.delete');
+        // CRUD route for reservations table
+        Route::put('/reservation/update/{id}', [AdminController::class, 'updateReservationStatus'])->name('reservation.update');
+    
     });
 
     // User routes
     Route::prefix('user')->middleware('role:user')->as('user.')->group(function () {
-        Route::get('/dashboard', [UserController::class, 'showUserDashboard'])->name('dashboard');
+        // Navigation routes
+        Route::get('/dashboard', [BookerController::class, 'showBookerDashboard'])->name('dashboard');
+        Route::get('/reservation', [BookerController::class, 'showBookerReservation'])->name('reservation');
+        
+        Route::post('/create/reservation', [BookerController::class, 'storeReservation'])->name('create.reservation');
+
     });
 
     // Logiut route

@@ -118,4 +118,19 @@ class AdminController extends Controller
     }
 
 
+// CRUD for Reservation
+
+    public function updateReservationStatus(Request $request, $id) {
+        // dd($request);
+        $request->validate([
+            'status' => 'required',
+        ]);
+        $reservation = Reservation::findOrFail($id);
+        $reservation->status = $request->status;
+        $reservation->save();
+
+        return redirect()->back()->with('success', 'Reservation status updated successfully.');
+    }
+
+
 }

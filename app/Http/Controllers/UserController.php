@@ -13,11 +13,4 @@ class UserController extends Controller
         return UserResource::collection($users);
         // return response()->json($users);
     }
-    
-    public function showUserDashboard() {
-        $user = Auth::user();
-        return view('user-page')->with([
-            'user' => $user,
-        ]);
-    }
 }

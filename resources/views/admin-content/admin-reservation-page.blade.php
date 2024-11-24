@@ -70,8 +70,8 @@
                         <!-- Column Headers -->
                         <tr>
                             <th scope="col" class="px-6 py-3">ID</th>
-                            <th scope="col" class="px-6 py-3">Booker</th>
-                            <th scope="col" class="px-6 py-3">Room ID</th>
+                            <th scope="col" class="px-6 py-3">Booker Name</th>
+                            <th scope="col" class="px-6 py-3">Room Name</th>
                             <th scope="col" class="px-6 py-3">Start Time</th>
                             <th scope="col" class="px-6 py-3">End Time</th>
                             <th scope="col" class="px-6 py-3">Purpose</th>
@@ -82,16 +82,57 @@
                     <tbody>
                         @foreach($reservations as $reservation)
                         <tr class="bg-white border-b hover:bg-gray-50">
-                            <th scope="row" class="flex items-center px-6 py-4 text-gray-900 whitespace-nowrap">
-                                R ID
-                            </th>
-                            <td class="px-3 py-4 font-bold text-center">Booker Name</td>
-                            <td class="px-3 py-4 font-medium text-center">Room 1</td>
-                            <td class="px-3 py-4 font-medium text-center">Start Time</td>
-                            <td class="px-3 py-4 font-medium text-center">End Time</td>
-                            <td class="px-3 py-4 font-medium text-center">Purpose</td>
-                            <td class="px-3 py-4 font-medium text-center">Approved</td>
-                            <td class="px-3 py-4 font-medium text-center">2024-11-23</td>
+                            <!-- Reservation ID -->
+                            <td class="flex items-center font-bold px-3 py-4 text-gray-900">
+                                #{{$reservation->id}}
+                            </td>
+                            <!-- Booker Name -->
+                            @foreach($users as $user)
+                            @if($reservation->user_id == $user->id)
+                            <td class="px-3 py-4 font-medium">{{ $user->username }}</td>
+                            @endif
+                            @endforeach
+                            <!-- Room Name -->
+                            @foreach($rooms as $room)
+                            @if($reservation->room_id == $room->id)
+                            <td class="px-3 py-4 font-medium">{{ $room->room_name }}</td>
+                            @endif
+                            @endforeach
+                            <!-- Start Time -->
+                            <td class="px-3 py-4 font-medium text-end">
+                                {{ \Carbon\Carbon::parse($reservation->start_time)->format('H:i') }}
+                            </td>
+                            <!-- End Time -->
+                            <td class="px-3 py-4 font-medium">
+                                {{ \Carbon\Carbon::parse($reservation->end_time)->format('H:i') }}
+                            </td>
+                            <!-- Purpose -->
+                            <td class="px-3 py-4 font-medium">{{ $reservation->purpose }}</td>
+                            <!-- Status -->
+                            <td class="px-3 py-4 font-medium">
+                                <form id="updateStatusForm{{ $reservation->id }}"
+                                    action="{{ route('admin.reservation.update', $reservation->id) }}" method="POST">
+                                    @csrf
+                                    @method('PUT')
+                                    <select name="status" onchange="this.form.submit()" class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-fit py-2.5 px-3 mt-1 
+                                        @if($reservation->status == 'rejected') text-red-500 
+                                        @elseif($reservation->status == 'pending') text-yellow-500 
+                                        @elseif($reservation->status == 'approved') text-green-500 
+                                        @endif">
+                                        <option value="pending"
+                                            {{ $reservation->status == 'pending' ? 'selected' : '' }}>Pending</option>
+                                        <option value="approved"
+                                            {{ $reservation->status == 'approved' ? 'selected' : '' }}>Approved</option>
+                                        <option value="rejected"
+                                            {{ $reservation->status == 'rejected' ? 'selected' : '' }}>Rejected</option>
+                                        <!-- Add more options as needed -->
+                                    </select>
+                                </form>
+                            </td>
+                            <!-- Book Date -->
+                            <td class="px-3 py-4 font-medium">
+                                {{ \Carbon\Carbon::parse($reservation->created_at)->format('d M Y') }}
+                            </td>
                         </tr>
                         @endforeach
                     </tbody>
