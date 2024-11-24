@@ -2,13 +2,23 @@
 
 @section('admin-content')
 <div class="w-full border-2 border-gray-200 border-dashed rounded-lg mt-14">
-    <div class="flex w-full">
+    <div class="flex flex-wrap w-full">
         <div class="w-full flex md:flex-row flex-col gap-4 mb-4">
             <!-- Table Header -->
-            <div class="w-full p-6 bg-white border border-gray-200 rounded-lg shadow">
+            <div class="w-full h-fit  p-6 bg-white border border-gray-200 rounded-lg shadow order-last md:order-first">
                 <div class="flex flex-row justify-between items-center mb-4">
-                    <h5 class="mb-2 text-2xl font-semibold tracking-tight text-gray-900">All Users
-                    </h5>
+                    <div class="flex flex-row items-center gap-4">
+                        <button type="button" class="primary-button rounded-lg px-3 py-3 inline-flex items-center"
+                            id="openRegisterModal">
+                            <svg class="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
+                                fill="currentColor" viewBox="0 0 24 24">
+                                <path
+                                    d="M5.25 6.375a4.125 4.125 0 1 1 8.25 0 4.125 4.125 0 0 1-8.25 0ZM2.25 19.125a7.125 7.125 0 0 1 14.25 0v.003l-.001.119a.75.75 0 0 1-.363.63 13.067 13.067 0 0 1-6.761 1.873c-2.472 0-4.786-.684-6.76-1.873a.75.75 0 0 1-.364-.63l-.001-.122ZM18.75 7.5a.75.75 0 0 0-1.5 0v2.25H15a.75.75 0 0 0 0 1.5h2.25v2.25a.75.75 0 0 0 1.5 0v-2.25H21a.75.75 0 0 0 0-1.5h-2.25V7.5Z" />
+                            </svg>
+                        </button>
+                        <h5 class="text-2xl font-semibold tracking-tight text-gray-900">All Users
+                        </h5>
+                    </div>
                     <form>
                         <label for="search" class="mb-2 text-sm font-medium text-gray-900 sr-only">Search</label>
                         <div class="relative">
@@ -26,7 +36,7 @@
                 </div>
             </div>
             <!-- Table -->
-            <div class="overflow-x-auto">
+            <div class="overflow-x-auto w-full">
                 <table class="w-full text-sm text-left rtl:text-right text-gray-500">
                     <thead class="text-xs text-gray-700 uppercase bg-gray-50">
                         <tr>
@@ -56,12 +66,15 @@
                                 {{ $user->role }}
                             </td>
                             <td class="px-6 py-4">
-                                <a href="#" class="font-medium text-blue-600 hover:underline">Edit
+                                <a href="#"
+                                    onclick="openEditModal({{ $user->id }}, '{{ $user->username }}', '{{ $user->email }}', '{{ $user->role }}')"
+                                    class="font-medium text-blue-600 hover:underline">Edit
                                     user</a>
                             </td>
                             <td class="px-6 py-4">
                                 <button type="button"
-                                    class="text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-3 py-3 text-center inline-flex items-center">
+                                    onclick="openDeleteModal({{ $user->id }}, '{{ $user->username }}')"
+                                    class="danger-button rounded-lg px-3 py-3 inline-flex items-center">
                                     <svg class="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
                                         fill="currentColor" viewBox="0 0 24 24">
                                         <path fill-rule="evenodd"
@@ -76,129 +89,231 @@
                 </table>
             </div>
         </div>
-        <!-- Register Card -->
-        <div class="w-full md:w-fit p-6 bg-white border border-gray-200 rounded-lg shadow order-first md:order-last">
-            <svg class="w-7 h-7 text-gray-500 mb-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
-                fill="currentColor" viewBox="0 0 20 20">
+        <!-- Account Setting -->
+        <div class="w-full md:max-w-sm min-w-sm p-6 h-fit bg-white border border-gray-200 rounded-lg shadow">
+            <svg class="w-8 h-8 text-gray-500 mb-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
+                fill="currentColor" viewBox="0 0 24 24">
                 <path
-                    d="M18 5h-.7c.229-.467.349-.98.351-1.5a3.5 3.5 0 0 0-3.5-3.5c-1.717 0-3.215 1.2-4.331 2.481C8.4.842 6.949 0 5.5 0A3.5 3.5 0 0 0 2 3.5c.003.52.123 1.033.351 1.5H2a2 2 0 0 0-2 2v3a1 1 0 0 0 1 1h18a1 1 0 0 0 1-1V7a2 2 0 0 0-2-2ZM8.058 5H5.5a1.5 1.5 0 0 1 0-3c.9 0 2 .754 3.092 2.122-.219.337-.392.635-.534.878Zm6.1 0h-3.742c.933-1.368 2.371-3 3.739-3a1.5 1.5 0 0 1 0 3h.003ZM11 13H9v7h2v-7Zm-4 0H2v5a2 2 0 0 0 2 2h3v-7Zm6 0v7h3a2 2 0 0 0 2-2v-5h-5Z" />
+                    d="M5.25 6.375a4.125 4.125 0 1 1 8.25 0 4.125 4.125 0 0 1-8.25 0ZM2.25 19.125a7.125 7.125 0 0 1 14.25 0v.003l-.001.119a.75.75 0 0 1-.363.63 13.067 13.067 0 0 1-6.761 1.873c-2.472 0-4.786-.684-6.76-1.873a.75.75 0 0 1-.364-.63l-.001-.122ZM18.75 7.5a.75.75 0 0 0-1.5 0v2.25H15a.75.75 0 0 0 0 1.5h2.25v2.25a.75.75 0 0 0 1.5 0v-2.25H21a.75.75 0 0 0 0-1.5h-2.25V7.5Z" />
             </svg>
             <a href="#">
-                <h5 class="mb-2 text-2xl font-semibold tracking-tight text-gray-900">Register new user
+                <h5 class="mb-2 text-2xl font-semibold tracking-tight text-gray-900">Account Setting
                 </h5>
             </a>
-            <p class="mb-3 font-normal text-gray-500">Create new user account with role</p>
-            <a href="#" class="inline-flex font-medium items-center text-blue-600 hover:underline">
-                Register
-            </a>
+            <p class="mb-3 font-normal text-gray-500">Change your account detail</p>
+            <form id="editForm" method="POST" action="{{ route('admin.update.account', $admin->id) }}">
+                @csrf
+                @method('PUT')
+                <input type=" hidden" name="userId" id="editUserId">
+
+                <!-- Username Field -->
+                <div class="mb-4">
+                    <label for="editUsername" class="form-label">Username</label>
+                    <input type="text" id="editUsername" name="username" class="text-form"
+                        value="{{ $admin->username }}" required>
+                </div>
+
+                <!-- Email Field -->
+                <div class="mb-4">
+                    <label for="editEmail" class="form-label">Email</label>
+                    <input type="email" id="editEmail" name="email" class="text-form" value="{{ $admin->email }}"
+                        required>
+                </div>
+
+                <!-- Checkbox for Password Update -->
+                <div class="mb-4 flex items-center">
+                    <input type="checkbox" id="changePasswordCheckbox" class="mr-2" onchange="togglePasswordFields()">
+                    <label for="changePasswordCheckbox" class="form-label mt-2">Change Password</label>
+                </div>
+
+                <!-- Password Fields (Initially Hidden) -->
+                <div id="passwordFields" class="hidden">
+                    <!-- New Password -->
+                    <div class="mb-4">
+                        <label for="newPassword" class="form-label">New Password</label>
+                        <input type="password" id="newPassword" name="new_password" class="text-form" disabled>
+                    </div>
+
+                    <!-- Confirm Password -->
+                    <div class="mb-4">
+                        <label for="confirmPassword" class="form-label">Confirm New Password</label>
+                        <input type="password" id="confirmPassword" name="new_password_confirmation" class="text-form"
+                            disabled>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="flex gap-4">
+                    <button type="submit" class="large-button primary-button">Save</button>
+                    <button type="button" id="closeEditModal" class="large-button secondary-button">Cancel</button>
+                </div>
+            </form>
+
         </div>
     </div>
 </div>
-<div class="grid grid-cols-2 gap-4 mb-4">
-    <div class="flex items-center justify-center h-24 rounded bg-gray-50">
-        <p class="text-2xl text-gray-400">
-            <svg class="w-3.5 h-3.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
-                viewBox="0 0 18 18">
-                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M9 1v16M1 9h16" />
-            </svg>
-        </p>
-    </div>
 
+<!-- Register Modal -->
+<div id="registerModal"
+    class="fixed hidden inset-0 z-50 p-4 bg-gray-800 bg-opacity-50 flex justify-center items-center">
+    <div class="bg-white p-6 rounded-lg w-full max-w-xs md:max-w-md">
+        <h3 class="text-xl font-semibold text-center mb-4">Register New User</h3>
+        <!-- Modal Content -->
+        <form action="{{ route('admin.register') }}" method="POST">
+            @csrf
+            <!-- User registration form fields here -->
+            <div class="mb-4">
+                <label for="username" class="form-label">Username</label>
+                <input type="text" id="username" name="username" class="text-form" required>
+            </div>
+            <div class="mb-4">
+                <label for="email" class="form-label">Email</label>
+                <input type="email" id="email" name="email" class="text-form" required>
+            </div>
+            <div class="mb-4">
+                <label for="role" class="form-label">Role</label>
+                <select id="role" name="role" class="select-form" required>
+                    <option value="user">User</option>
+                    <option value="admin">Admin</option>
+                </select>
+            </div>
+            <div class="mb-4">
+                <label for="password" class="form-label">Password</label>
+                <input type="password" id="password" name="password" class="text-form" required />
+            </div>
+            <div class="flex gap-6">
+                <button type="submit" class="large-button primary-button">Register</button>
+                <button type="button" id="closeModal" class="large-button secondary-button">Cancel</button>
+            </div>
+        </form>
+    </div>
 </div>
 
+<!-- Delete User Modal -->
+<div id="deleteUserModal"
+    class="fixed hidden inset-0 z-50 p-4 bg-gray-800 bg-opacity-50 flex justify-center items-center">
+    <div class="bg-white p-6 rounded-lg w-full max-w-xs md:max-w-md">
+        <h3 class="text-xl font-semibold text-center mb-4">Delete User</h3>
+        <p class="text-center mb-4" id="userNameMessage"></p>
+        <form id="deleteForm" method="POST" action="{{ route('admin.delete.user') }}">
+            @csrf
+            @method('DELETE')
+            <!-- Use DELETE method for deletion -->
+            <input type="hidden" name="userId" id="deleteUserId">
+            <div class="flex w-full items-center justify-center gap-4">
+                <button type="submit" class="large-button danger-button">Confirm</button>
+                <button type="button" id="closeDeleteModal" class="large-button secondary-button">Cancel</button>
+            </div>
+        </form>
+    </div>
+</div>
 
-<div class="flex items-center justify-center h-48 mb-4 rounded bg-gray-50">
-    <p class="text-2xl text-gray-400">
-        <svg class="w-3.5 h-3.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 18 18">
-            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M9 1v16M1 9h16" />
-        </svg>
-    </p>
-</div>
-<div class="grid grid-cols-2 gap-4 mb-4">
-    <div class="flex items-center justify-center rounded bg-gray-50 h-28">
-        <p class="text-2xl text-gray-400">
-            <svg class="w-3.5 h-3.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
-                viewBox="0 0 18 18">
-                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M9 1v16M1 9h16" />
-            </svg>
-        </p>
-    </div>
-    <div class="flex items-center justify-center rounded bg-gray-50 h-28">
-        <p class="text-2xl text-gray-400">
-            <svg class="w-3.5 h-3.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
-                viewBox="0 0 18 18">
-                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M9 1v16M1 9h16" />
-            </svg>
-        </p>
-    </div>
-    <div class="flex items-center justify-center rounded bg-gray-50 h-28">
-        <p class="text-2xl text-gray-400">
-            <svg class="w-3.5 h-3.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
-                viewBox="0 0 18 18">
-                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M9 1v16M1 9h16" />
-            </svg>
-        </p>
-    </div>
-    <div class="flex items-center justify-center rounded bg-gray-50 h-28">
-        <p class="text-2xl text-gray-400">
-            <svg class="w-3.5 h-3.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
-                viewBox="0 0 18 18">
-                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M9 1v16M1 9h16" />
-            </svg>
-        </p>
+<!-- Edit Modal -->
+<div id="editModal" class="fixed hidden inset-0 z-50 p-4 bg-gray-800 bg-opacity-50 flex justify-center items-center">
+    <div class="bg-white p-6 rounded-lg w-full max-w-xs md:max-w-md">
+        <h3 class="text-xl font-semibold text-center mb-4">Edit User</h3>
+        <form id="editForm" method="POST" action="{{ route('admin.update.user') }}">
+            @csrf
+            @method('PUT')
+            <input type="hidden" name="userId" id="editUserId">
+            <div class="mb-4">
+                <label for="editUsername" class="form-label">Username</label>
+                <input type="text" id="editUsername" name="username" class="text-form" required>
+            </div>
+            <div class="mb-4">
+                <label for="editEmail" class="form-label">Email</label>
+                <input type="email" id="editEmail" name="email" class="text-form" required>
+            </div>
+            <div class="mb-4">
+                <label for="editRole" class="form-label">Role</label>
+                <select id="editRole" name="role" class="select-form" required>
+                    <option value="user">User</option>
+                    <option value="admin">Admin</option>
+                </select>
+            </div>
+            <div class="flex gap-4">
+                <button type="submit" class="large-button primary-button">Save</button>
+                <button type="button" id="closeEditModal" class="large-button secondary-button">Cancel</button>
+            </div>
+        </form>
     </div>
 </div>
-<div class="flex items-center justify-center h-48 mb-4 rounded bg-gray-50">
-    <p class="text-2xl text-gray-400">
-        <svg class="w-3.5 h-3.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 18 18">
-            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M9 1v16M1 9h16" />
-        </svg>
-    </p>
-</div>
-<div class="grid grid-cols-2 gap-4">
-    <div class="flex items-center justify-center rounded bg-gray-50 h-28">
-        <p class="text-2xl text-gray-400">
-            <svg class="w-3.5 h-3.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
-                viewBox="0 0 18 18">
-                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M9 1v16M1 9h16" />
-            </svg>
-        </p>
-    </div>
-    <div class="flex items-center justify-center rounded bg-gray-50 h-28">
-        <p class="text-2xl text-gray-400">
-            <svg class="w-3.5 h-3.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
-                viewBox="0 0 18 18">
-                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M9 1v16M1 9h16" />
-            </svg>
-        </p>
-    </div>
-    <div class="flex items-center justify-center rounded bg-gray-50 h-28">
-        <p class="text-2xl text-gray-400">
-            <svg class="w-3.5 h-3.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
-                viewBox="0 0 18 18">
-                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M9 1v16M1 9h16" />
-            </svg>
-        </p>
-    </div>
-    <div class="flex items-center justify-center rounded bg-gray-50 h-28">
-        <p class="text-2xl text-gray-400">
-            <svg class="w-3.5 h-3.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
-                viewBox="0 0 18 18">
-                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M9 1v16M1 9h16" />
-            </svg>
-        </p>
-    </div>
-</div>
-</div>
+
+<script>
+// Get the modal and the button
+const registerModal = document.getElementById('registerModal');
+const openRegisterModalButton = document.getElementById('openRegisterModal');
+const closeRegisterModalButton = document.getElementById('closeModal');
+
+openRegisterModalButton.addEventListener('click', function(e) {
+    e.preventDefault(); // Prevent page reload
+    registerModal.classList.remove('hidden');
+});
+
+closeRegisterModalButton.addEventListener('click', function() {
+    registerModal.classList.add('hidden');
+});
+
+window.addEventListener('click', function(e) {
+    if (e.target === modal) {
+        registerModal.classList.add('hidden');
+    }
+});
+
+
+const closeDeleteModalButton = document.getElementById('closeDeleteModal');
+const deleteModal = document.getElementById('deleteUserModal')
+
+closeDeleteModalButton.addEventListener('click', function() {
+    deleteModal.classList.add('hidden');
+});
+
+function openDeleteModal(userId, username) {
+    document.getElementById('userNameMessage').textContent =
+        `Are you sure you want to delete the user with username: ${username} ?`;
+    document.getElementById('deleteUserId').value = userId;
+
+    deleteModal.classList.remove('hidden');
+}
+
+const editModal = document.getElementById('editModal');
+const closeEditModal = document.getElementById('closeEditModal');
+
+function openEditModal(userId, username, email, role) {
+    document.getElementById('editUserId').value = userId;
+    document.getElementById('editUsername').value = username;
+    document.getElementById('editEmail').value = email;
+    document.getElementById('editRole').value = role;
+
+    editModal.classList.remove('hidden');
+}
+
+closeEditModal.addEventListener('click', () => {
+    editModal.classList.add('hidden');
+});
+
+
+function togglePasswordFields() {
+    const checkbox = document.getElementById('changePasswordCheckbox');
+    const passwordFields = document.getElementById('passwordFields');
+    const newPassword = document.getElementById('newPassword');
+    const confirmPassword = document.getElementById('confirmPassword');
+
+    if (checkbox.checked) {
+        // Show password fields and enable them
+        passwordFields.classList.remove('hidden');
+        newPassword.disabled = false;
+        confirmPassword.disabled = false;
+        newPassword.required = true;
+        confirmPassword.required = true;
+    } else {
+        // Hide password fields and disable them
+        passwordFields.classList.add('hidden');
+        newPassword.disabled = true;
+        confirmPassword.disabled = true;
+        newPassword.required = false;
+        confirmPassword.required = false;
+    }
+}
+</script>
 @endsection

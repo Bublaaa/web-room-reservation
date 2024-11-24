@@ -26,7 +26,7 @@ class AdminController extends Controller
     }
     public function showUserDashboard(){
         $admin = auth()->user();
-        $users = User::all();
+        $users = User::where('id', '!=', $admin->id)->get();
         return view('admin-content/admin-user-page')->with([
             'admin' => $this->admin,
             'users' => $users,
@@ -48,4 +48,5 @@ class AdminController extends Controller
             'admin' => $this->admin,
         ]);
     }
+
 }

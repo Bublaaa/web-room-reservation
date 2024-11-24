@@ -51,10 +51,6 @@
                             </p>
                         </div>
                         <ul class="py-1" role="none">
-                            <li>
-                                <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                                    role="menuitem">Settings</a>
-                            </li>
                             <form action="{{ route('logout') }}" method="POST"
                                 onsubmit="return confirm('Are you sure you want to sign out?');">
                                 @csrf
@@ -127,7 +123,7 @@
     </div>
 </aside>
 
-<div class="flex w-full p-4 md:ml-64">
+<div class="flex w-screen p-4 md:ml-64 md:w-[calc(100%-17rem)]">
     @yield('admin-content')
 </div>
 

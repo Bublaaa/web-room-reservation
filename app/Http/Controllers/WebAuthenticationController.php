@@ -43,10 +43,12 @@ class WebAuthenticationController extends Controller
     // Handle registration
     public function register(Request $request)
     {
+         
         $request->validate([
             'username' => 'required|string|unique:users',
-            'email' => 'required|string|email|unique:users',
-            'password' => 'required|string|confirmed',
+            'email' => 'required|string|unique:users',
+            'role' => 'required',
+            'password' => 'required|string|min:8',
         ]);
 
         $user = User::create([
@@ -56,9 +58,11 @@ class WebAuthenticationController extends Controller
             'role' => $request->role ?? 'user', // Default to 'user' if no role is provided
         ]);
 
-        Auth::login($user);
-
-        return redirect()->route('user.dashboard');
+        // Auth::login($user);
+        if(!$user) {
+            return redirect()->back()->with('error', 'User updated successfully.');
+        }
+        return redirect()->back()->with('success',"Success register new user");
     }
 
     // Handle logout
@@ -68,38 +72,52 @@ class WebAuthenticationController extends Controller
         return redirect()->route('showLoginForm');
     }
 
-    // Show edit user page
-    public function edit($id)
+     public function updateAccount(Request $request, $id)
     {
+        // dd($request);
+        $request->validate([
+            'username' => 'required|string|max:255',
+            'email' => 'required|email|max:255|unique:users,email,' . $id,
+            'new_password' => 'nullable|string|min:8|confirmed',
+        ]);
         $user = User::findOrFail($id);
 
-        return view('auth.edit', compact('user'));
+        $user->username = $request->input('username');
+        $user->email = $request->input('email');
+
+        if ($request->filled('new_password')) {
+            $user->password = Hash::make($request->input('new_password'));
+        }
+
+        $user->save();
+
+        return redirect()->back()->with('success', 'User updated successfully!');
     }
 
     // Handle update user
-    public function update(Request $request, $id)
+    public function update(Request $request)
     {
         $request->validate([
-            'username' => 'required|string|unique:users,username,' . $id,
-            'email' => 'required|string|email|unique:users,email,' . $id,
+            'username' => 'required|string|unique:users,username,' . $request->userId,
+            'email' => 'required|string|email|unique:users,email,' . $request->userId,
+            'role' => 'required|string',
         ]);
+        $user = User::findOrFail($request->userId);
+        $user->username = $request->username;
+        $user->email = $request->email;
+        $user->role = $request->role;
+        $user->save();
 
-        $user = User::findOrFail($id);
-        $user->update([
-            'username' => $request->username,
-            'email' => $request->email,
-            'role' => $request->role,
-        ]);
-
-        return redirect()->route('admin.dashboard')->with('success', 'User updated successfully.');
+        return redirect()->back()->with('success', 'User updated successfully.');
     }
 
+
     // Handle delete user
-    public function delete($id)
+    public function delete(Request $request)
     {
-        $user = User::findOrFail($id);
+        $user = User::findOrFail($request->userId);
         $user->delete();
 
-        return redirect()->route('admin.dashboard')->with('success', 'User deleted successfully.');
+        return redirect()->back()->with('success', 'User deleted successfully.');
     }
 }
