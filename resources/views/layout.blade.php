@@ -11,7 +11,7 @@
 
 <body>
     <div id="app">
-        <main class="w-full h-screen">
+        <main class="h-screen">
             @yield('content')
         </main>
     </div>
