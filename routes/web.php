@@ -17,16 +17,23 @@ Route::middleware('guest')->group(function () {
 Route::middleware('auth')->group(function () {
     // Admin routes
     Route::prefix('admin')->middleware('role:admin')->as('admin.')->group(function () {
+        // Read Routes
         Route::get('/dashboard', [AdminController::class, 'showAdminDashboard'])->name('dashboard');
         Route::get('/rooms', [AdminController::class, 'showRoomDashboard'])->name('room.dashboard');
         Route::get('/reservations', [AdminController::class, 'showReservationDashboard'])->name('reservation.dashboard');
         Route::get('/users', [AdminController::class, 'showUserDashboard'])->name('user.dashboard');
+
+        // CRUD route for user table
         Route::post('/users/register', [WebAuthenticationController::class, 'register'])->name('register');
         Route::delete('/users/delete', [WebAuthenticationController::class, 'delete'])->name('delete.user');
         Route::put('/users/update', [WebAuthenticationController::class, 'update'])->name('update.user');
+        // Update self account
         Route::put('/user/{id}', [WebAuthenticationController::class, 'updateAccount'])->name('update.account');
 
-
+        // CRUD route for user table
+        Route::post('/rooms/add', [AdminController::class, 'addRoom'])->name('rooms.add'); // Add room
+        Route::put('/rooms/update', [AdminController::class, 'updateRoom'])->name('rooms.update'); // Update room
+        Route::delete('/rooms/delete', [AdminController::class, 'deleteRoom'])->name('rooms.delete'); // Delete room
         // Resource routes
         Route::resource('room', RoomController::class);
         Route::resource('reservation', ReservationController::class);

@@ -49,4 +49,71 @@ class AdminController extends Controller
         ]);
     }
 
+// Room CRUD Function
+
+    public function addRoom(Request $request) {
+        $request->validate([
+            'room_name' => 'required|string|max:255',
+            'location' => 'required|string|max:255',
+            'capacity' => 'required|int|max:100|min:10',
+            'description' => 'required|string|max:255',
+        ]);
+        $newRoom = Room::create([
+            'room_name' => $request->room_name,
+            'location' => $request->location,
+            'capacity' => $request->capacity,
+            'description' => $request->description,
+        ]);
+
+        if (!$newRoom) {
+            return redirect()->back()->with('error', 'Failed to register new room');
+        }
+        return redirect()->back()->with('success', 'Successfully registered new room');
+    }
+
+    public function updateRoom(Request $request) {
+        $request->validate([
+            'roomId' => 'required',
+            'room_name' => 'required|string|max:255',
+            'location' => 'required|string|max:255',
+            'capacity' => 'required|int|max:100|min:10',
+            'description' => 'required|string|max:255',
+        ]);
+
+        $room = Room::find($request->roomId);
+
+        if (!$room) {
+            return redirect()->back()->with('error', 'Room not found');
+        }
+
+        $updated = $room->update([
+            'room_name' => $request->room_name,
+            'location' => $request->location,
+            'capacity' => $request->capacity,
+            'description' => $request->description,
+        ]);
+
+        if (!$updated) {
+            return redirect()->back()->with('error', 'Failed to update room');
+        }
+
+        return redirect()->back()->with('success', 'Successfully updated room');
+    }
+
+    public function deleteRoom(Request $request) {
+
+        $room = Room::find($request->roomId);
+
+        if (!$room) {
+            return redirect()->back()->with('error', 'Room not found');
+        }
+
+        if (!$room->delete()) {
+            return redirect()->back()->with('error', 'Failed to delete room');
+        }
+
+        return redirect()->back()->with('success', 'Successfully deleted room');
+    }
+
+
 }

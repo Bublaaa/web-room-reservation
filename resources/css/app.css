@@ -36,3 +36,7 @@
 .modal-container{
     @apply fixed hidden inset-0 z-50 p-4 bg-gray-800 bg-opacity-50 flex justify-center items-center;
 }
+
+.room-card{
+    @apply flex flex-col justify-between  bg-white border border-gray-200 rounded-lg shadow cursor-pointer;
+}

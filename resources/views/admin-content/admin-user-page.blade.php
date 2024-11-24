@@ -1,7 +1,7 @@
 @extends('admin-page')
 
 @section('admin-content')
-<div class="w-full border-2 border-gray-200 border-dashed rounded-lg mt-14">
+<div class="w-full mt-14">
     <div class="flex flex-wrap w-full">
         <div class="w-full flex md:flex-row flex-col gap-4 mb-4">
             <!-- Table Header -->
@@ -108,7 +108,6 @@
             <form id="editAccountForm" method="POST" action="{{ route('admin.update.account', $admin->id) }}">
                 @csrf
                 @method('PUT')
-                <input type="hidden" class="hidden" name="userId" id="editUserAccoundId">
 
                 <!-- Username Field -->
                 <div class="mb-4">
@@ -197,11 +196,10 @@
     class="fixed hidden inset-0 z-50 p-4 bg-gray-800 bg-opacity-50 flex justify-center items-center">
     <div class="bg-white p-6 rounded-lg w-full max-w-xs md:max-w-md">
         <h3 class="text-xl font-semibold text-center mb-4">Delete User</h3>
-        <p class="text-center mb-4" id="userNameMessage"></p>
+        <p class="text-center mb-4" id="deleteConfirmation"></p>
         <form id="deleteForm" method="POST" action="{{ route('admin.delete.user') }}">
             @csrf
             @method('DELETE')
-            <!-- Use DELETE method for deletion -->
             <input type="hidden" name="userId" id="deleteUserId">
             <div class="flex w-full items-center justify-center gap-4">
                 <button type="submit" class="large-button danger-button">Confirm</button>
@@ -243,7 +241,6 @@
 </div>
 
 <script>
-// Get the modal and the button
 const registerModal = document.getElementById('registerModal');
 const openRegisterModalButton = document.getElementById('openRegisterModal');
 const closeRegisterModalButton = document.getElementById('closeModal');
@@ -304,7 +301,7 @@ closeDeleteModalButton.addEventListener('click', function() {
 });
 
 function openDeleteModal(userId, username) {
-    document.getElementById('userNameMessage').textContent =
+    document.getElementById('deleteConfirmation').textContent =
         `Are you sure you want to delete the user with username: ${username} ?`;
     document.getElementById('deleteUserId').value = userId;
 
