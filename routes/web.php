@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\WebAuthenticationController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\RoomController;
+use App\Http\Controllers\UserController;
 use App\Http\Controllers\ReservationController;
 
 Route::middleware('guest')->group(function () {
@@ -33,4 +34,20 @@ Route::middleware('auth')->group(function () {
             return view('user.dashboard');
         })->name('user.dashboard');
     });
+});
+
+Route::prefix('admin')->middleware(['auth'])->group(function () {
+    Route::get('/dashboard', [AdminController::class, 'showAdminDashboard'])->name('admin.dashboard');
+    Route::get('/rooms', [AdminController::class, 'showRoomDashboard'])->name('admin.room.dashboard');
+    Route::get('/reservations', [AdminController::class, 'showReservationDashboard'])->name('admin.reservation.dashboard');
+    Route::get('/users', [AdminController::class, 'showUserDashboard'])->name('admin.user.dashboard');
+    
+    Route::get('/register', [AdminController::class, 'register'])->name('register-user');
+    Route::resource('room', RoomController::class);
+    Route::resource('reservation', ReservationController::class);
+
+});
+
+Route::prefix('user')->middleware(['auth'])->group(function () {
+    Route::get('/dashboard', [UserController::class, 'showUserDashboard'])->name('user.dashboard');
 });
