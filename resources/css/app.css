@@ -1,3 +1,42 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+
+.text-form {
+    @apply bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5;
+}
+
+.select-form {
+    @apply block bg-gray-50 border border-gray-300 p-2.5 pr-2 items-center w-full text-gray-900 rounded-lg hover:bg-gray-100;
+}
+
+.form-label {
+    @apply block mb-2 text-sm font-medium text-gray-900;
+}
+
+
+.primary-button {
+    @apply text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg text-center;
+}
+
+.secondary-button {
+    @apply text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-gray-700 focus:z-10 focus:ring-4 focus:ring-gray-100;
+}
+
+.danger-button {
+    @apply text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 rounded-lg text-center;
+}
+
+
+.large-button {
+    @apply py-2.5 px-5 text-sm font-medium
+}
+
+.modal-container{
+    @apply fixed hidden inset-0 z-50 p-4 bg-gray-800 bg-opacity-50 flex justify-center items-center;
+}
+
+.room-card{
+    @apply flex flex-col justify-between  bg-white border border-gray-200 rounded-lg shadow cursor-pointer;
+}
