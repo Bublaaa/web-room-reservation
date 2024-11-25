@@ -7,7 +7,7 @@ use App\Models\User;
 use App\Models\Room;
 use App\Models\Reservation;
 use Illuminate\Support\Facades\Auth;
-
+use Illuminate\Support\Facades\DB;
 
 class AdminController extends Controller
 {
@@ -23,6 +23,20 @@ class AdminController extends Controller
         $rooms = Room::all();
         $users = User::all();
         $reservations = Reservation::all();
+
+        $roomsWithReservations = DB::table('rooms')
+            ->join('reservations', 'rooms.id', '=', 'reservations.room_id')
+            ->where('reservations.status', '=', 'approved')
+            ->select('rooms.id as room_id', 'rooms.room_name', 'rooms.location', 'reservations.*', 
+                    DB::raw('DATE(reservations.created_at) as reservation_date'))
+            ->orderBy('reservation_date', 'desc')
+            ->orderBy('reservations.start_time', 'asc')
+            ->get()
+            ->groupBy('reservation_date') // First group by reservation created_at date
+            ->map(function($groupByDate) {
+                return $groupByDate->groupBy('room_id'); // Then group by room_id within each date group
+            }
+        );
         
         $totalReservations = $reservations->count();
         $pendingReservations = $reservations->where('status', 'pending')->count();
@@ -33,6 +47,7 @@ class AdminController extends Controller
             'reservations' => $reservations,
             'totalReservations' => $totalReservations,
             'pendingReservations' => $pendingReservations,
+            'roomsWithReservations' => $roomsWithReservations,
         ]);
     }
     public function showUserDashboard(){

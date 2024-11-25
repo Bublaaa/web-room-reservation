@@ -27,28 +27,28 @@ class BookerController extends Controller
         $reservations = Reservation::where('user_id',$user->id)->get();
         $rooms = Room::all();
         
-        $earliestDate = Reservation::orderBy('created_at', 'asc')->first()->created_at;
-        $latestDate = Reservation::orderBy('created_at', 'desc')->first()->created_at;
-
-        $earliestDateFormatted = $earliestDate->format('Y-m-d');
-        $latestDateFormatted = $latestDate->format('Y-m-d');
-
         $roomsWithReservations = DB::table('rooms')
             ->join('reservations', 'rooms.id', '=', 'reservations.room_id')
-            ->where('reservations.status', '=',  'approved')
-            ->select('rooms.id as room_id', 'rooms.room_name', 'rooms.location', 'reservations.*')
+            ->where('reservations.status', '=', 'approved')
+            ->select('rooms.id as room_id', 'rooms.room_name', 'rooms.location', 'reservations.*', 
+                    DB::raw('DATE(reservations.created_at) as reservation_date'))
+            ->orderBy('reservation_date', 'desc')
             ->orderBy('reservations.start_time', 'asc')
             ->get()
-            ->groupBy('room_id');
+            ->groupBy('reservation_date') // First group by reservation created_at date
+            ->map(function($groupByDate) {
+                return $groupByDate->groupBy('room_id'); // Then group by room_id within each date group
+            }
+        );
+
             
+        // dd($roomsWithReservations);
             
         return view('booker-content/booker-reservation-page')->with([
             'user' => $user,
             'reservations' => $reservations,
             'rooms' => $rooms,
             'roomsWithReservations' => $roomsWithReservations,
-            'earliestDateFormatted' => $earliestDateFormatted,
-            'latestDateFormatted' => $latestDateFormatted,
         ]);
     }
 
