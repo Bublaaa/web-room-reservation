@@ -8,58 +8,100 @@ use Illuminate\Http\Request;
 class RoomController extends Controller
 {
     /**
-     * Display a listing of the resource.
-     */
-    public function index()
-    {
-        //
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
+     * Add a new room.
      */
     public function store(Request $request)
     {
-        //
+        // Validate input
+        $validated = $request->validate([
+            'room_name' => 'required|string|max:255',
+            'location' => 'required|string|max:255',
+            'capacity' => 'nullable|integer|min:1',
+            'description' => 'nullable|string|max:500',
+        ]);
+
+        // Create room
+        $room = Room::create($validated);
+
+        return response()->json([
+            'message' => 'Room created successfully.',
+            'data' => $room,
+        ], 201);
     }
 
     /**
-     * Display the specified resource.
+     * Get all rooms.
      */
-    public function show(Room $room)
+    public function index()
     {
-        //
+        $rooms = Room::all();
+
+        return response()->json([
+            'message' => 'Rooms retrieved successfully.',
+            'data' => $rooms,
+        ], 200);
     }
 
     /**
-     * Show the form for editing the specified resource.
+     * Get a single room by ID.
      */
-    public function edit(Room $room)
+    public function show($id)
     {
-        //
+        $room = Room::find($id);
+
+        if (!$room) {
+            return response()->json(['error' => 'Room not found'], 404);
+        }
+
+        return response()->json([
+            'message' => 'Room retrieved successfully.',
+            'data' => $room,
+        ], 200);
     }
 
     /**
-     * Update the specified resource in storage.
+     * Update a room by ID.
      */
-    public function update(Request $request, Room $room)
+    public function update(Request $request, $id)
     {
-        //
+        $room = Room::find($id);
+
+        if (!$room) {
+            return response()->json(['error' => 'Room not found'], 404);
+        }
+
+        // Validate input
+        $validated = $request->validate([
+            'room_name' => 'sometimes|string|max:255',
+            'location' => 'sometimes|string|max:255',
+            'capacity' => 'sometimes|integer|min:1',
+            'description' => 'sometimes|string|max:500',
+        ]);
+
+        // Update room
+        $room->update($validated);
+
+        return response()->json([
+            'message' => 'Room updated successfully.',
+            'data' => $room,
+        ], 200);
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Delete a room by ID.
      */
-    public function destroy(Room $room)
+    public function destroy($id)
     {
-        //
+        $room = Room::find($id);
+
+        if (!$room) {
+            return response()->json(['error' => 'Room not found'], 404);
+        }
+
+        $room->delete();
+
+        return response()->json([
+            'message' => 'Room deleted successfully.',
+        ], 200);
     }
 }

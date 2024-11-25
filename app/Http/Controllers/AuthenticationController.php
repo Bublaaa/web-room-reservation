@@ -1,37 +1,64 @@
 <?php
+
 namespace App\Http\Controllers;
 
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\ValidationException; 
+use Illuminate\Validation\ValidationException;
 
 class AuthenticationController extends Controller
 {
+    /**
+     * Handle user login and issue a token.
+     */
     public function login(Request $request)
     {
-        $request->validate([
+        // Validate input
+        $validated = $request->validate([
             'username' => 'required|string',
             'password' => 'required|string',
         ]);
 
-        $user = User::where('username', $request->username)->first();
+        // Find user by username
+        $user = User::where('username', $validated['username'])->first();
 
-        if (!$user || !Hash::check($request->password, $user->password)) {
+        // Check if user exists and password is correct
+        if (!$user || !Hash::check($validated['password'], $user->password)) {
             throw ValidationException::withMessages([
-                'username' => ['The provided credentials are incorrect.'],
+                'credentials' => ['Invalid username or password.'],
             ]);
         }
 
-        $token = $user->createToken($request->username)->plainTextToken;
+        // Generate a token
+        $token = $user->createToken('auth_token')->plainTextToken;
 
         return response()->json([
+            'message' => 'Login successful.',
             'token' => $token,
-            'role' => $user->role,
             'user' => $user,
-        ]);
+        ], 200);
     }
-    public function logout(Request $request) {
+
+    /**
+     * Handle user logout and revoke current token.
+     */
+    public function logout(Request $request)
+    {
         $request->user()->currentAccessToken()->delete();
+
+        return response()->json([
+            'message' => 'Logout successful.',
+        ], 200);
+    }
+
+    /**
+     * Get authenticated user details.
+     */
+    public function getAuthenticatedUser(Request $request)
+    {
+        return response()->json([
+            'user' => $request->user(),
+        ], 200);
     }
 }
