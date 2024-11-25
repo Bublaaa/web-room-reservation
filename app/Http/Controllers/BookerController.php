@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Models\Room;
 use App\Models\Reservation;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class BookerController extends Controller
 {
@@ -25,10 +26,29 @@ class BookerController extends Controller
         $user = Auth::user();
         $reservations = Reservation::where('user_id',$user->id)->get();
         $rooms = Room::all();
+        
+        $earliestDate = Reservation::orderBy('created_at', 'asc')->first()->created_at;
+        $latestDate = Reservation::orderBy('created_at', 'desc')->first()->created_at;
+
+        $earliestDateFormatted = $earliestDate->format('Y-m-d');
+        $latestDateFormatted = $latestDate->format('Y-m-d');
+
+        $roomsWithReservations = DB::table('rooms')
+            ->join('reservations', 'rooms.id', '=', 'reservations.room_id')
+            ->where('reservations.status', '=',  'approved')
+            ->select('rooms.id as room_id', 'rooms.room_name', 'rooms.location', 'reservations.*')
+            ->orderBy('reservations.start_time', 'asc')
+            ->get()
+            ->groupBy('room_id');
+            
+            
         return view('booker-content/booker-reservation-page')->with([
             'user' => $user,
             'reservations' => $reservations,
             'rooms' => $rooms,
+            'roomsWithReservations' => $roomsWithReservations,
+            'earliestDateFormatted' => $earliestDateFormatted,
+            'latestDateFormatted' => $latestDateFormatted,
         ]);
     }
 

@@ -29,26 +29,50 @@
             </div>
             <!-- Table -->
             <div class="overflow-x-auto w-full">
-                <table class="w-full text-sm text-left rtl:text-right text-gray-500">
+                <table class="w-fit text-sm text-left rtl:text-right text-gray-500">
                     <!-- Column Headers -->
                     <thead class="text-xs text-gray-700 uppercase bg-gray-50">
                         <tr>
                             <th scope="col" class="px-6 py-3">Room</th>
-                            <th scope="col" class="px-6 py-3">Time</th>
+                            <th scope="col" class="px-6 py-3 text-center">Schedule</th>
                         </tr>
                     </thead>
+                    <!-- Schedule -->
                     <tbody>
-                        @foreach($reservations as $reservation)
-                        <tr class="bg-white border-b hover:bg-gray-50">
+                        @foreach($roomsWithReservations as $room => $reservations)
+                        <tr class="bg-white border-b hover:bg-gray-50"
+                            data-created-at="{{ \Carbon\Carbon::parse($reservations->first()->created_at)->format('Y-m-d') }}">
                             <th scope="row" class="flex items-center px-6 py-4 text-gray-900 whitespace-nowrap">
-                                R ID
+                                <div>
+                                    <div class="text-base font-semibold">
+                                        {{ $rooms->firstWhere('id', $room)->room_name ?? 'Unknown' }}
+                                    </div>
+                                    <div class="font-normal text-gray-500">
+                                        {{ $rooms->firstWhere('id', $room)->location ?? 'Unknown' }}
+                                    </div>
+                                </div>
                             </th>
-                            <td class="px-3 py-4 font-medium text-center">Room 1</td>
-                            <td class="px-3 py-4 font-medium text-center">Start Time</td>
-                            <td class="px-3 py-4 font-medium text-center">End Time</td>
-                            <td class="px-3 py-4 font-medium text-center">Purpose</td>
-                            <td class="px-3 py-4 font-medium text-center">Approved</td>
-                            <td class="px-3 py-4 font-medium text-center">2024-11-23</td>
+                            <td class=" w-full px-1 py-2 bg-white">
+                                @foreach ($reservations as $reservation)
+                                <div class="flex flex-row">
+                                    <!-- Time Before -->
+                                    <div class="flex time-before-reservation bg-white"
+                                        data-start-time="{{ $reservation->start_time }}">
+                                    </div>
+
+                                    <!-- Reservation Time -->
+                                    <div class="flex flex-col font-medium text-center reservation-time"
+                                        data-start-time="{{ $reservation->start_time }}"
+                                        data-end-time="{{ $reservation->end_time }}">
+                                        <p class="font-bold">{{ $reservation->purpose }}</p>
+                                        <p class="text-xs  text-white bg-blue-700 p-1">
+                                            {{ \Carbon\Carbon::parse($reservation->start_time)->format('H:i') }} -
+                                            {{ \Carbon\Carbon::parse($reservation->end_time)->format('H:i') }}
+                                        </p>
+                                    </div>
+                                </div>
+                                @endforeach
+                            </td>
                         </tr>
                         @endforeach
                     </tbody>
@@ -119,11 +143,42 @@
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const bookDate = document.getElementById('bookDate');
-    const scheduleDate = document.getElementById('scheduleDate');
     const roomId = document.getElementById('roomId');
     const startTime = document.getElementById('startTime');
     const endTime = document.getElementById('endTime');
     const purpose = document.getElementById('purpose');
+
+
+    const scheduleDate = document.getElementById('scheduleDate');
+    const formattedEarliestDate = new Date('{{ $earliestDateFormatted }}').toLocaleDateString('en-CA');
+    const formattedLatestDate = new Date('{{ $latestDateFormatted }}').toLocaleDateString('en-CA');
+
+    scheduleDate.min = formattedEarliestDate;
+    scheduleDate.max = formattedLatestDate;
+
+    const rows = document.querySelectorAll('tbody tr');
+    rows.forEach(row => {
+        row.style.display = 'none';
+    });
+
+    scheduleDate.addEventListener('input', function() {
+        const selectedDate = scheduleDate.value;
+        if (!selectedDate) {
+            rows.forEach(row => {
+                row.style.display = 'none';
+            });
+        } else {
+            rows.forEach(row => {
+                const createdAt = row.getAttribute('data-created-at');
+
+                if (selectedDate === createdAt) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
+    });
 
     // Initial time constraint
     startTime.disabled = true;
@@ -149,8 +204,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
     bookDate.min = formattedTomorrow;
     bookDate.max = formattedMaxDate;
-    scheduleDate.min = formattedTomorrow;
-    scheduleDate.max = formattedMaxDate;
 
     // Disable Sundays on the date picker
     bookDate.addEventListener('input', function() {
@@ -221,6 +274,51 @@ document.addEventListener('DOMContentLoaded', function() {
             purpose.disabled = true;
         }
     });
+
+    // Define the max start time and max end time (07:30 to 16:00)
+    const maxStartTime = 7 * 60 + 30; // 07:30 in minutes
+    const maxEndTime = 16 * 60; // 16:00 in minutes
+    const maxDiff = maxEndTime - maxStartTime; // Total minutes (510)
+
+    // Get all the reservation divs
+    const reservationDivs = document.querySelectorAll('.reservation-time');
+    const timeBeforeReservationDivs = document.querySelectorAll('.time-before-reservation');
+
+    timeBeforeReservationDivs.forEach(div => {
+        const startTime = div.getAttribute('data-start-time');
+        const startMinutes = convertToMinutes(startTime);
+
+        const diff = startMinutes - maxStartTime;
+        const widthPercentage = (diff / maxDiff) * 100;
+        div.style.width = `${widthPercentage}%`;
+    });
+
+    reservationDivs.forEach(div => {
+        const startTime = div.getAttribute('data-start-time');
+        const endTime = div.getAttribute('data-end-time');
+
+        // Convert the times to minutes
+        const startMinutes = convertToMinutes(startTime);
+        const endMinutes = convertToMinutes(endTime);
+
+
+        // Calculate the time difference in minutes
+        const diff = endMinutes - startMinutes;
+
+        // Calculate the width as a percentage
+        const widthPercentage = (diff / maxDiff) * 100;
+
+        // Set the width as inline style
+        div.style.width = `${widthPercentage}%`;
+    });
+
+    // Function to convert time "HH:mm" to minutes
+    function convertToMinutes(time) {
+        const date = new Date(time);
+        const hours = date.getHours();
+        const minutes = date.getMinutes();
+        return hours * 60 + minutes;
+    }
 });
 </script>
 @endsection

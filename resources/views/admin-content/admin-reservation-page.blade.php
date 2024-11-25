@@ -1,7 +1,7 @@
 @extends('admin-page')
 
 @section('admin-content')
-<div class="w-full border-2 border-gray-200 border-dashed rounded-lg mt-14">
+<div class="w-full mt-14">
     <div class="flex flex-wrap w-full">
         <div class="w-full flex md:flex-row flex-col gap-4 mb-4">
             <!-- Table Header -->
@@ -61,14 +61,8 @@
                             <th scope="col" class="px-6 py-3">
                                 <input type="date" id="date-picker"
                                     class="block w-full px-4 py-3 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500" />
-                                <!-- <select id="date-filter" class="select-form">
-                                    <option value="all">All</option>
-                                    <option value="today">Today</option>
-                                    <option value="yesterday">Yesterday</option>
-                                    <option value="week">A Week Ago</option>
-                                    <option value="week">A Week Ago</option>
-                                </select> -->
                             </th>
+                            <th scope="col" class="px-6 py-3"></th>
                         </tr>
                         <!-- Column Headers -->
                         <tr class="text-center">

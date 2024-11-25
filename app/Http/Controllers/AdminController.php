@@ -20,8 +20,19 @@ class AdminController extends Controller
     
     public function showAdminDashboard(){
         $admin = auth()->user();
-        return view('admin-page')->with([
+        $rooms = Room::all();
+        $users = User::all();
+        $reservations = Reservation::all();
+        
+        $totalReservations = $reservations->count();
+        $pendingReservations = $reservations->where('status', 'pending')->count();
+        return view('admin-content/admin-dashboard-page')->with([
             'admin' => $this->admin,
+             'users' => $users,
+            'rooms' => $rooms,
+            'reservations' => $reservations,
+            'totalReservations' => $totalReservations,
+            'pendingReservations' => $pendingReservations,
         ]);
     }
     public function showUserDashboard(){
