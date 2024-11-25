@@ -121,7 +121,7 @@
 <!-- Add Room Modal -->
 <div id="addRoomModal" class="fixed hidden inset-0 z-50 p-4 bg-gray-800 bg-opacity-50 flex justify-center items-center">
     <div class="bg-white p-6 rounded-lg w-full max-w-xs md:max-w-md">
-        <h3 class="text-xl font-semibold text-center mb-4">Register New User</h3>
+        <h3 class="text-xl font-semibold text-center mb-4">Register New Room</h3>
         <!-- Modal Content -->
         <form id="addRoomForm" method="POST" action="{{ route('admin.rooms.add') }}">
             @csrf

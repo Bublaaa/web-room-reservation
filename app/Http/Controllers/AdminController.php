@@ -119,18 +119,45 @@ class AdminController extends Controller
 
 
 // CRUD for Reservation
+    private function isOverlap($roomId, $startTime, $endTime, $bookDate) {
+        $reservations = Reservation::whereDate('created_at', $bookDate)
+            ->where('room_id', $roomId)
+            ->where('status', 'approved')
+            ->get();
 
+        foreach ($reservations as $reservation) {
+            $existingStartTime = \Carbon\Carbon::parse($reservation->start_time)->format('Y-m-d H:i:s');
+            $existingEndTime = \Carbon\Carbon::parse($reservation->end_time)->format('Y-m-d H:i:s');
+
+            if (
+                ($startTime >= $existingStartTime && $startTime < $existingEndTime) || 
+                ($endTime > $existingStartTime && $endTime <= $existingEndTime) || 
+                ($startTime <= $existingStartTime && $endTime >= $existingEndTime)
+            ) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+    
     public function updateReservationStatus(Request $request, $id) {
-        // dd($request);
         $request->validate([
             'status' => 'required',
         ]);
+
         $reservation = Reservation::findOrFail($id);
+
+        if ($request->status === 'approved') {
+            if ($this->isOverlap($reservation->room_id, $reservation->start_time, $reservation->end_time, $reservation->created_at)) {
+                return redirect()->back()->with('error', 'Overlapping reservation exists. Status cannot be updated to approved.');
+            }
+        }
+
         $reservation->status = $request->status;
         $reservation->save();
 
         return redirect()->back()->with('success', 'Reservation status updated successfully.');
     }
-
 
 }

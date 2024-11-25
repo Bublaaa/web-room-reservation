@@ -59,47 +59,49 @@
                             </th>
                             <!-- Date Filter -->
                             <th scope="col" class="px-6 py-3">
-                                <select id="date-filter" class="select-form">
+                                <input type="date" id="date-picker"
+                                    class="block w-full px-4 py-3 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500" />
+                                <!-- <select id="date-filter" class="select-form">
                                     <option value="all">All</option>
                                     <option value="today">Today</option>
                                     <option value="yesterday">Yesterday</option>
                                     <option value="week">A Week Ago</option>
-                                </select>
+                                    <option value="week">A Week Ago</option>
+                                </select> -->
                             </th>
                         </tr>
                         <!-- Column Headers -->
-                        <tr>
+                        <tr class="text-center">
                             <th scope="col" class="px-6 py-3">ID</th>
                             <th scope="col" class="px-6 py-3">Booker Name</th>
                             <th scope="col" class="px-6 py-3">Room Name</th>
-                            <th scope="col" class="px-6 py-3">Start Time</th>
-                            <th scope="col" class="px-6 py-3">End Time</th>
+                            <th scope="col" class="px-3 py-3">Start Time</th>
+                            <th scope="col" class="px-3 py-3">End Time</th>
                             <th scope="col" class="px-6 py-3">Purpose</th>
                             <th scope="col" class="px-6 py-3">Status</th>
                             <th scope="col" class="px-6 py-3">Date</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody id="reservationTable">
                         @foreach($reservations as $reservation)
-                        <tr class="bg-white border-b hover:bg-gray-50">
+                        <tr class="bg-white border-b hover:bg-gray-50 reservation-row text-center align-center"
+                            data-room-id="{{ $reservation->room_id }}" data-status="{{ $reservation->status }}"
+                            data-username="{{ $users->firstWhere('id', $reservation->user_id)->username ?? '' }}"
+                            data-date="{{ $reservation->created_at }}">
                             <!-- Reservation ID -->
-                            <td class="flex items-center font-bold px-3 py-4 text-gray-900">
+                            <td class="px-3 py-4 font-medium">
                                 #{{$reservation->id}}
                             </td>
                             <!-- Booker Name -->
-                            @foreach($users as $user)
-                            @if($reservation->user_id == $user->id)
-                            <td class="px-3 py-4 font-medium">{{ $user->username }}</td>
-                            @endif
-                            @endforeach
+                            <td class="px-3 py-4 font-medium">
+                                {{ $users->firstWhere('id', $reservation->user_id)->username ?? 'Unknown' }}
+                            </td>
                             <!-- Room Name -->
-                            @foreach($rooms as $room)
-                            @if($reservation->room_id == $room->id)
-                            <td class="px-3 py-4 font-medium">{{ $room->room_name }}</td>
-                            @endif
-                            @endforeach
+                            <td class="px-3 py-4 font-medium">
+                                {{ $rooms->firstWhere('id', $reservation->room_id)->room_name ?? 'Unknown' }}
+                            </td>
                             <!-- Start Time -->
-                            <td class="px-3 py-4 font-medium text-end">
+                            <td class="px-3 py-4 font-medium">
                                 {{ \Carbon\Carbon::parse($reservation->start_time)->format('H:i') }}
                             </td>
                             <!-- End Time -->
@@ -114,7 +116,7 @@
                                     action="{{ route('admin.reservation.update', $reservation->id) }}" method="POST">
                                     @csrf
                                     @method('PUT')
-                                    <select name="status" onchange="this.form.submit()" class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-fit py-2.5 px-3 mt-1 
+                                    <select name="status" onchange="this.form.submit()" class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full py-2.5 px-3 mt-1 
                                         @if($reservation->status == 'rejected') text-red-500 
                                         @elseif($reservation->status == 'pending') text-yellow-500 
                                         @elseif($reservation->status == 'approved') text-green-500 
@@ -141,4 +143,64 @@
         </div>
     </div>
 </div>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const searchInput = document.getElementById('search');
+    const roomFilter = document.getElementById('room-id-filter');
+    const statusFilter = document.getElementById('status-filter');
+    const datePicker = document.getElementById('date-picker');
+    const tableRows = document.querySelectorAll('.reservation-row');
+
+    const getSearchValue = () => searchInput.value.toLowerCase();
+    const getRoomValue = () => roomFilter.value;
+    const getStatusValue = () => statusFilter.value;
+    const getDateValue = () => datePicker.value;
+
+    const setDatePickerLimits = (dates) => {
+        const formatDate = (date) => date.toLocaleDateString('en-CA');
+
+        const minDate = new Date(Math.min(...dates));
+        const maxDate = new Date(Math.max(...dates));
+
+        datePicker.min = formatDate(minDate);
+        datePicker.max = formatDate(maxDate);
+    };
+
+    const filterRow = (row, searchValue, roomValue, statusValue, dateValue) => {
+        const username = row.getAttribute('data-username').toLowerCase();
+        const roomId = row.getAttribute('data-room-id');
+        const status = row.getAttribute('data-status');
+        const date = new Date(row.getAttribute('data-date')).toLocaleDateString('en-CA');
+
+        const matchesSearch = username.includes(searchValue);
+        const matchesRoom = !roomValue || roomId === roomValue;
+        const matchesStatus = statusValue === 'all' || status === statusValue;
+        const matchesDate = !dateValue || date === dateValue;
+
+        return matchesSearch && matchesRoom && matchesStatus && matchesDate;
+    };
+
+    const filterTable = () => {
+        const searchValue = getSearchValue();
+        const roomValue = getRoomValue();
+        const statusValue = getStatusValue();
+        const dateValue = getDateValue();
+
+        tableRows.forEach(row => {
+            const shouldShowRow = filterRow(row, searchValue, roomValue, statusValue, dateValue);
+            row.style.display = shouldShowRow ? '' : 'none';
+        });
+    };
+    const dates = Array.from(tableRows).map(row => new Date(row.getAttribute('data-date')));
+    if (dates.length > 0) {
+        setDatePickerLimits(dates);
+    }
+
+    searchInput.addEventListener('input', filterTable);
+    roomFilter.addEventListener('change', filterTable);
+    statusFilter.addEventListener('change', filterTable);
+    datePicker.addEventListener('change', filterTable);
+});
+</script>
+
 @endsection

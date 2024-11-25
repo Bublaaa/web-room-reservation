@@ -32,6 +32,29 @@ class BookerController extends Controller
         ]);
     }
 
+    private function isOverlap($roomId, $startTime, $endTime, $bookDate) {
+        $reservations = Reservation::whereDate('created_at', $bookDate)
+            ->where('room_id', $roomId)
+            ->where('status', 'approved')
+            ->get();
+
+        foreach ($reservations as $reservation) {
+            $existingStartTime = \Carbon\Carbon::parse($reservation->start_time)->format('Y-m-d H:i:s');
+            $existingEndTime = \Carbon\Carbon::parse($reservation->end_time)->format('Y-m-d H:i:s');
+
+            if (
+                ($startTime >= $existingStartTime && $startTime < $existingEndTime) || 
+                ($endTime > $existingStartTime && $endTime <= $existingEndTime) || 
+                ($startTime <= $existingStartTime && $endTime >= $existingEndTime)
+            ) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+
     public function storeReservation(Request $request) {
         $user = Auth::user();
         $request->validate([
@@ -41,55 +64,32 @@ class BookerController extends Controller
             'end_time' => 'required',
             'purpose' => 'required|string|max:255',
         ]);
-        $bookDate = \Carbon\Carbon::parse($request->book_date)->format('Y-m-d');
 
-        $sameRoomAndDayReservations = Reservation::whereDate('created_at', $bookDate) 
-            ->where('room_id', $request->room_id)
-            ->get();
-        
+        $bookDate = \Carbon\Carbon::parse($request->book_date)->format('Y-m-d');
         $startTime = \Carbon\Carbon::parse($bookDate . ' ' . $request->start_time)->format('Y-m-d H:i:s');
         $endTime = \Carbon\Carbon::parse($bookDate . ' ' . $request->end_time)->format('Y-m-d H:i:s');
 
-        $isOverlap = false;
-        
-        foreach ($sameRoomAndDayReservations as $reservation) {
-            $existingStartTime = \Carbon\Carbon::parse($reservation->start_time)->format('Y-m-d H:i:s');
-            $existingEndTime = \Carbon\Carbon::parse($reservation->end_time)->format('Y-m-d H:i:s');
-
-            if (
-                ($startTime >= $existingStartTime && $startTime < $existingEndTime) || 
-                ($endTime > $existingStartTime && $endTime <= $existingEndTime) || 
-                ($startTime <= $existingStartTime && $endTime >= $existingEndTime)
-            ) {
-                $isOverlap = true;
-                dd("overlap");
-                break;
-            }
-        }
-
-        // If there is an overlap, return error
-        if ($isOverlap) {
+        if ($this->isOverlap($request->room_id, $startTime, $endTime, $bookDate)) {
             return redirect()->back()->with('error', 'Overlapping reservation exists.');
-        } else {
-            // Create the new reservation
-            $createdAt = \Carbon\Carbon::parse($bookDate)->format('Y-m-d H:i:s');
-            
-            $newReservation = Reservation::create([
-                'user_id' => $user->id,
-                'room_id' => $request->room_id,
-                'start_time' => $startTime,
-                'end_time' => $endTime,
-                'purpose' => $request->purpose,
-                'status' => 'pending',
-                'created_at' => $createdAt, // Store the formatted created_at
-            ]);
-
-            if (!$newReservation) {
-                return redirect()->back()->with('error', 'Failed to place reservation request.');
-            } else {
-                return redirect()->back()->with('success', 'Successfully placed reservation request.');
-            }
         }
+
+        $createdAt = \Carbon\Carbon::parse($bookDate)->format('Y-m-d H:i:s');
+
+        $newReservation = Reservation::create([
+            'user_id' => $user->id,
+            'room_id' => $request->room_id,
+            'start_time' => $startTime,
+            'end_time' => $endTime,
+            'purpose' => $request->purpose,
+            'status' => 'pending',
+            'created_at' => $createdAt,
+        ]);
+
+        if (!$newReservation) {
+            return redirect()->back()->with('error', 'Failed to place reservation request.');
+        }
+
+        return redirect()->back()->with('success', 'Successfully placed reservation request.');
     }
 
 }
