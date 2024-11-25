@@ -37,7 +37,7 @@ Route::middleware('auth')->group(function () {
         Route::delete('/rooms/delete', [AdminController::class, 'deleteRoom'])->name('rooms.delete');
         // CRUD route for reservations table
         Route::put('/reservation/update/{id}', [AdminController::class, 'updateReservationStatus'])->name('reservation.update');
-    
+        Route::delete('/rooms/delete', [AdminController::class, 'deleteReservation'])->name('reservation.delete');    
     });
 
     // User routes

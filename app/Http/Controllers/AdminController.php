@@ -160,4 +160,18 @@ class AdminController extends Controller
         return redirect()->back()->with('success', 'Reservation status updated successfully.');
     }
 
+    public function deleteReservation(Request $request) {
+
+        $reservation = Reservation::find($request->reservationId);
+        if (!$reservation) {
+            return redirect()->back()->with('error', 'Room not found');
+        }
+
+        if (!$reservation->delete()) {
+            return redirect()->back()->with('error', 'Failed to delete reservation');
+        }
+
+        return redirect()->back()->with('success', 'Successfully deleted reservation');
+    }
+
 }

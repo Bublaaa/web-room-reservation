@@ -76,6 +76,7 @@
                                     user</a>
                             </td>
                             <td class="px-6 py-4">
+                                <!-- Delete Button -->
                                 <button type="button"
                                     onclick="openDeleteModal({{ $user->id }}, '{{ $user->username }}')"
                                     class="danger-button rounded-lg px-3 py-3 inline-flex items-center">
@@ -246,11 +247,12 @@ const openRegisterModalButton = document.getElementById('openRegisterModal');
 const closeRegisterModalButton = document.getElementById('closeModal');
 
 openRegisterModalButton.addEventListener('click', function(e) {
-    e.preventDefault(); // Prevent page reload
+    e.preventDefault();
     registerModal.classList.remove('hidden');
 });
 
-closeRegisterModalButton.addEventListener('click', function() {
+closeRegisterModalButton.addEventListener('click', function(e) {
+    e.preventDefault();
     registerModal.classList.add('hidden');
 });
 
