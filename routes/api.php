@@ -26,10 +26,10 @@ Route::prefix('users')->middleware('auth:sanctum')->group(function () {
         Route::get('/{id}', [UserController::class, 'show']); // Read Single User
         Route::put('/{id}', [UserController::class, 'update']); // Update User
         Route::delete('/{id}', [UserController::class, 'destroy']); // Delete User
+        Route::post('/register', [UserController::class, 'store']); // Register User
     });
 
     // Public Routes
-    Route::post('/register', [UserController::class, 'store']); // Register User
 });
 
 /**

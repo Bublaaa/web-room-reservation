@@ -33,7 +33,11 @@ class UserController extends Controller
      */
     public function show($id)
     {
-        $user = User::findOrFail($id);
+        $user = User::find($id);
+
+        if (!$user) {
+            return response()->json(['message' => 'User not found.'], 404);
+        }
 
         return response()->json([
             'message' => 'User retrieved successfully.',
@@ -46,16 +50,18 @@ class UserController extends Controller
         ], 200);
     }
 
+
     /**
      * Register a new user.
      */
     public function store(Request $request)
     {
+        // dd($request);
         $validated = $request->validate([
             'username' => 'required|string|max:255|unique:users',
             'email' => 'required|email|max:255|unique:users',
-            'password' => 'required|string|min:8|confirmed',
-            'role' => 'required|string|in:user,admin',
+            'password' => 'required|string|min:8',
+            'role' => 'required|string',
         ]);
 
         $user = User::create([
@@ -86,16 +92,21 @@ class UserController extends Controller
         $validated = $request->validate([
             'username' => 'sometimes|string|max:255|unique:users,username,' . $id,
             'email' => 'sometimes|email|max:255|unique:users,email,' . $id,
-            'password' => 'sometimes|string|min:8|confirmed',
+            'password' => 'sometimes|string|min:8|confirmed', // This checks new password & confirmation
             'role' => 'sometimes|string|in:user,admin',
         ]);
 
-        $user->update(array_filter([
+        $updateData = [
             'username' => $validated['username'] ?? null,
             'email' => $validated['email'] ?? null,
-            'password' => isset($validated['password']) ? Hash::make($validated['password']) : null,
             'role' => $validated['role'] ?? null,
-        ]));
+        ];
+
+        if (!empty($validated['password'])) {
+            $updateData['password'] = Hash::make($validated['password']);
+        }
+
+        $user->update(array_filter($updateData));
 
         return response()->json([
             'message' => 'User updated successfully.',
@@ -107,6 +118,7 @@ class UserController extends Controller
             ],
         ], 200);
     }
+
 
     /**
      * Delete a user (Admin only).
